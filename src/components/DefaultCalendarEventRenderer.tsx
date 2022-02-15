@@ -1,17 +1,20 @@
-import dayjs from 'dayjs'
-import * as React from 'react'
-import { Text, TouchableOpacity } from 'react-native'
+import dayjs from 'dayjs';
+import * as React from 'react';
+import { Text, TouchableOpacity } from 'react-native';
 
-import { CalendarTouchableOpacityProps, ICalendarEventBase } from '../interfaces'
-import { useTheme } from '../theme/ThemeContext'
-import { formatStartEnd } from '../utils'
+import { CalendarTouchableOpacityProps, ICalendarEventBase } from '../interfaces';
+import { useTheme } from '../theme/ThemeContext';
+import { formatStartEnd } from '../utils';
 
 interface DefaultCalendarEventRendererProps<T extends ICalendarEventBase> {
-  touchableOpacityProps: CalendarTouchableOpacityProps
-  event: T
-  showTime?: boolean
-  textColor: string
-  ampm: boolean
+  touchableOpacityProps: CalendarTouchableOpacityProps;
+  event: T;
+  showTime?: boolean;
+  textColor: string;
+  ampm: boolean;
+  dayMinutes: number;
+  hours?: any;
+  startHour?: any;
 }
 
 export function DefaultCalendarEventRenderer<T extends ICalendarEventBase>({
@@ -20,10 +23,11 @@ export function DefaultCalendarEventRenderer<T extends ICalendarEventBase>({
   showTime = true,
   textColor,
   ampm,
+  dayMinutes = 0
 }: DefaultCalendarEventRendererProps<T>) {
-  const theme = useTheme()
-  const eventTimeStyle = { fontSize: theme.typography.xs.fontSize, color: textColor }
-  const eventTitleStyle = { fontSize: theme.typography.sm.fontSize, color: textColor }
+  const theme = useTheme();
+  const eventTimeStyle = { fontSize: theme.typography.xs.fontSize, color: textColor };
+  const eventTitleStyle = { fontSize: theme.typography.sm.fontSize, color: textColor };
 
   return (
     <TouchableOpacity {...touchableOpacityProps}>
@@ -46,5 +50,5 @@ export function DefaultCalendarEventRenderer<T extends ICalendarEventBase>({
         </>
       )}
     </TouchableOpacity>
-  )
+  );
 }

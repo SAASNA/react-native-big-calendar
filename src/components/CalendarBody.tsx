@@ -1,18 +1,18 @@
-import dayjs from 'dayjs'
-import * as React from 'react'
-import { Platform, ScrollView, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
+import dayjs from 'dayjs';
+import * as React from 'react';
+import { Platform, ScrollView, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 
-import { u } from '../commonStyles'
-import { useNow } from '../hooks/useNow'
-import { usePanResponder } from '../hooks/usePanResponder'
+import { u } from '../commonStyles';
+import { useNow } from '../hooks/useNow';
+import { usePanResponder } from '../hooks/usePanResponder';
 import {
   CalendarCellStyle,
   EventCellStyle,
   EventRenderer,
   HorizontalDirection,
   ICalendarEventBase,
-} from '../interfaces'
-import { useTheme } from '../theme/ThemeContext'
+} from '../interfaces';
+import { useTheme } from '../theme/ThemeContext';
 import {
   getCountOfEventsAtEvent,
   getOrderOfEvent,
@@ -20,10 +20,10 @@ import {
   hours,
   isToday,
   typedMemo,
-} from '../utils'
-import { CalendarEvent } from './CalendarEvent'
-import { HourGuideCell } from './HourGuideCell'
-import { HourGuideColumn } from './HourGuideColumn'
+} from '../utils';
+import { CalendarEvent } from './CalendarEvent';
+import { HourGuideCell } from './HourGuideCell';
+import { HourGuideColumn } from './HourGuideColumn';
 
 const styles = StyleSheet.create({
   nowIndicator: {
@@ -32,28 +32,31 @@ const styles = StyleSheet.create({
     height: 2,
     width: '100%',
   },
-})
+});
 
 interface CalendarBodyProps<T extends ICalendarEventBase> {
-  cellHeight: number
-  containerHeight: number
-  dateRange: dayjs.Dayjs[]
-  events: T[]
-  scrollOffsetMinutes: number
-  ampm: boolean
-  showTime: boolean
-  style: ViewStyle
-  eventCellStyle?: EventCellStyle<T>
-  calendarCellStyle?: CalendarCellStyle
-  hideNowIndicator?: boolean
-  overlapOffset?: number
-  onPressCell?: (date: Date) => void
-  onPressEvent?: (event: T) => void
-  onSwipeHorizontal?: (d: HorizontalDirection) => void
-  renderEvent?: EventRenderer<T>
-  headerComponent?: React.ReactElement | null
-  headerComponentStyle?: ViewStyle
-  hourStyle?: TextStyle
+  cellHeight: number;
+  containerHeight: number;
+  dateRange: dayjs.Dayjs[];
+  events: T[];
+  scrollOffsetMinutes: number;
+  ampm: boolean;
+  showTime: boolean;
+  style: ViewStyle;
+  eventCellStyle?: EventCellStyle<T>;
+  calendarCellStyle?: CalendarCellStyle;
+  hideNowIndicator?: boolean;
+  overlapOffset?: number;
+  onPressCell?: (date: Date) => void;
+  onPressEvent?: (event: T) => void;
+  onSwipeHorizontal?: (d: HorizontalDirection) => void;
+  renderEvent?: EventRenderer<T>;
+  headerComponent?: React.ReactElement | null;
+  headerComponentStyle?: ViewStyle;
+  hourStyle?: TextStyle;
+  dayMinutes?: number;
+  hours?: any;
+  startHour?: any;
 }
 
 function _CalendarBody<T extends ICalendarEventBase>({
@@ -76,9 +79,12 @@ function _CalendarBody<T extends ICalendarEventBase>({
   headerComponent = null,
   headerComponentStyle = {},
   hourStyle = {},
+  dayMinutes = 0,
+  hours = [],
+  startHour = 0
 }: CalendarBodyProps<T>) {
-  const scrollView = React.useRef<ScrollView>(null)
-  const { now } = useNow(!hideNowIndicator)
+  const scrollView = React.useRef<ScrollView>(null);
+  const { now } = useNow(!hideNowIndicator);
 
   React.useEffect(() => {
     if (scrollView.current && scrollOffsetMinutes && Platform.OS !== 'ios') {
@@ -90,24 +96,24 @@ function _CalendarBody<T extends ICalendarEventBase>({
             scrollView.current.scrollTo({
               y: (cellHeight * scrollOffsetMinutes) / 60,
               animated: false,
-            })
+            });
           }
         },
         Platform.OS === 'web' ? 0 : 10,
-      )
+      );
     }
-  }, [scrollView, scrollOffsetMinutes, cellHeight])
+  }, [scrollView, scrollOffsetMinutes, cellHeight]);
 
   const panResponder = usePanResponder({
     onSwipeHorizontal,
-  })
+  });
 
   const _onPressCell = React.useCallback(
     (date: dayjs.Dayjs) => {
-      onPressCell && onPressCell(date.toDate())
+      onPressCell && onPressCell(date.toDate());
     },
     [onPressCell],
-  )
+  );
 
   const _renderMappedEvent = (event: T) => (
     <CalendarEvent
@@ -116,15 +122,18 @@ function _CalendarBody<T extends ICalendarEventBase>({
       onPressEvent={onPressEvent}
       eventCellStyle={eventCellStyle}
       showTime={showTime}
+      dayMinutes={dayMinutes}
+      hours={hours}
+      startHour={startHour}
       eventCount={getCountOfEventsAtEvent(event, events)}
       eventOrder={getOrderOfEvent(event, events)}
       overlapOffset={overlapOffset}
       renderEvent={renderEvent}
       ampm={ampm}
     />
-  )
+  );
 
-  const theme = useTheme()
+  const theme = useTheme();
 
   return (
     <React.Fragment>
@@ -217,7 +226,7 @@ function _CalendarBody<T extends ICalendarEventBase>({
                   style={[
                     styles.nowIndicator,
                     { backgroundColor: theme.palette.nowIndicator },
-                    { top: `${getRelativeTopInDay(now)}%` },
+                    { top: `${getRelativeTopInDay(now, dayMinutes)}%` },
                   ]}
                 />
               )}
@@ -226,7 +235,7 @@ function _CalendarBody<T extends ICalendarEventBase>({
         </View>
       </ScrollView>
     </React.Fragment>
-  )
+  );
 }
 
-export const CalendarBody = typedMemo(_CalendarBody)
+export const CalendarBody = typedMemo(_CalendarBody);
